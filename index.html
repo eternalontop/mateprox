@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teléfono Simulado</title>
+    <!-- Importar Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Importar Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="phone">
+        <div class="status-bar">
+            <!-- Iconos de la barra de estado con colores -->
+            <div class="status-item"><i class="fas fa-signal"></i></div>
+            <div class="status-item"><i class="fas fa-wifi"></i></div>
+            <div class="status-item time">12:00</div>
+            <div class="status-item battery">
+                <i class="fas fa-battery-full"></i>
+                <div class="battery-text">100%</div>
+            </div>
+        </div>
+        <div class="home-screen" id="home-screen">
+            <!-- Apps decorativas con colores aleatorios -->
+            <a href="#" class="app-icon" style="--app-color: #ff6347;">
+                <i class="fas fa-phone"></i>
+                <span>Teléfono</span>
+            </a>
+            <a href="#" class="app-icon" style="--app-color: #3cb371;">
+                <i class="fas fa-camera"></i>
+                <span>Cámara</span>
+            </a>
+            <a href="#" class="app-icon" style="--app-color: #4682b4;">
+                <i class="fas fa-message"></i>
+                <span>Mensajes</span>
+            </a>
+            <a href="#" class="app-icon" style="--app-color: #da70d6;">
+                <i class="fas fa-paint-brush"></i>
+                <span>Arte</span>
+            </a>
+            <div class="dock">
+                <!-- Apps en dock con MatePro destacada -->
+                <a href="#" class="app-icon special" id="matepro-app">
+                    <i class="fas fa-square-root-alt" style="color: #fff;"></i>
+                    <span>MatePro</span>
+                </a>
+            </div>
+        </div>
+        <div class="buttons">
+            <div class="volume-btn"></div>
+            <div class="power-btn"></div>
+        </div>
+        <!-- Pantalla de MatePro con homescreen interactiva -->
+        <div class="app-screen" id="matepro-screen">
+            <div class="math-symbol">$$ \int $$</div>
+            <div class="math-symbol">$$ \sum $$</div>
+            <div class="math-symbol">$$ \div $$</div>
+            <div class="math-symbol">$$ \times $$</div>
+            <div class="math-symbol">$$ \pi $$</div>
+            <div class="math-symbol">$$ \phi $$</div>
+            <div class="math-symbol">$$ \infty $$</div>
+            <div class="math-symbol">$$ \partial $$</div>
+            <div class="math-symbol">$$ \alpha $$</div>
+            <div class="app-screen-content" id="app-content">
+                <!-- Contenido de la app se renderizará aquí -->
+            </div>
+            
+            <div class="nav-bar">
+                <a href="#" class="nav-button" id="nav-home">
+                    <i class="fas fa-th-large"></i>
+                    <span>Apps</span>
+                </a>
+                <a href="#" class="nav-button" id="nav-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Info</span>
+                </a>
+                <a href="#" class="nav-button" id="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="mathpro.js"></script>
+    <script>
+        // Inicializar KaTeX
+        window.addEventListener('load', () => {
+            renderMathInElement(document.body, {
+                // Configuración de KaTeX
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
