@@ -3,99 +3,1576 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teléfono Simulado</title>
-    <!-- Importar Font Awesome para íconos -->
+    <title>Teléfono Simulado - MatePro</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Importar Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-Pl7L4rFhEw/n7kXJp0I2Oq4J2L0S9/V5V/B4D4Zz8yM..." crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-Kj8M6W6N8u3fF27/6L8M47p9p0o9o+P8pP0lP2eW8oP8oM5z+P7B/N2Zg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-mX1Yf633YqV11sR3n1C8V3Gf2tO2QhT/z0S9h3O7i2O2D+2I6E3M5p/P8wM4zT8z" crossorigin="anonymous"></script>
+
+    <style>
+        /* --- Configuración General --- */
+        :root {
+            --phone-bg: #f0f4f8;
+            --phone-border: #111;
+            --page-bg: linear-gradient(135deg, #74cbed, #1e3c72);
+            --text-color: #000;
+            --icon-bg: linear-gradient(135deg, #ffffff, #f0f0f0);
+            --home-bg: #fff;
+            --app-bg: linear-gradient(45deg, #e0f2fe, #b3e5fc, #81d4fa);
+            --app-symbol: rgba(0, 0, 0, 0.08);
+            --app-header-bg: rgba(255, 255, 255, 0.7);
+            --app-header-icon: #004a99;
+            --card-bg: #f8f9fa;
+            --card-text: #333;
+            --card-internal-bg: rgba(255, 255, 255, 0.9);
+            --radio-bg: #f0f4f8;
+            --radio-border: #e0e4e8;
+            --radio-hover-bg: #e0e8ef;
+            --radio-hover-border: #c0c8d0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--page-bg);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            transition: background 0.4s ease;
+        }
+
+        /* --- Controles Externos (Tema) --- */
+        .external-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .theme-toggle-btn {
+            background: #fff;
+            color: #1e3c72;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- Simulación del Teléfono --- */
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: var(--phone-bg);
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+            overflow: hidden;
+            /* CAMBIO: Borde más ancho */
+            border: 12px solid var(--phone-border);
+            z-index: 1;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        
+        .notch {
+            position: absolute;
+            /* CAMBIO: Ajustado al borde superior */
+            top: 0px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 28px;
+            background: var(--phone-border);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 20;
+            transition: background 0.4s ease;
+        }
+
+        .status-bar {
+            height: 30px;
+            background: transparent;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 13px;
+            font-weight: 600;
+            position: absolute;
+            /* CAMBIO: Ajustado al borde superior */
+            top: 0px;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        /* --- NUEVO: Estilos para items de la barra de estado --- */
+        #current-time-left {
+            display: block; /* Mostrar por defecto */
+        }
+        #current-time-center {
+            display: none; /* Ocultar por defecto */
+        }
+        .status-right-icons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .phone.app-is-open .status-bar {
+            background: #000;
+            color: #fff;
+            top: 0;
+            border-bottom: 1px solid #333;
+            /* CAMBIO: Grid para centrar la hora */
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+        }
+        
+        .phone.app-is-open #current-time-left {
+            display: none; /* Ocultar hora izquierda */
+        }
+        .phone.app-is-open #current-time-center {
+            display: block; /* Mostrar hora central */
+            text-align: center;
+        }
+        .phone.app-is-open .status-right-icons {
+            justify-self: end;
+        }
+        
+        .phone.app-is-open .notch {
+            display: none;
+        }
+
+        .home-screen {
+            height: 100%;
+            background: var(--home-bg);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            /* CAMBIO: Apps más juntas */
+            gap: 15px; 
+            row-gap: 25px;
+            padding: 60px 20px; /* Padding superior e izquierdo/derecho ajustado */
+            align-items: start;
+            justify-items: center;
+            position: relative;
+            transition: background 0.4s ease;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        /* --- Iconos de Apps --- */
+        .app-icon {
+            width: 70px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            text-decoration: none;
+            font-size: 11px;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+        
+        .app-icon-visual {
+            width: 70px;
+            height: 70px;
+            background: var(--icon-bg);
+            border-radius: 22px; 
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: box-shadow 0.3s, background 0.4s ease;
+        }
+
+        .app-icon i {
+            font-size: 28px;
+            color: var(--app-color, #333);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: color 0.4s ease;
+        }
+        
+        .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-icon span {
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.4s ease;
+            text-shadow: none;
+            text-align: center;
+        }
+
+        .app-icon:active {
+            transform: scale(0.9);
+        }
+
+        /* --- Pantalla de la App Interna --- */
+        .app-screen {
+            display: none;
+            height: calc(100% - 30px);
+            background: var(--app-bg);
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            transition: background 0.4s ease;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        
+        .math-symbol {
+            position: absolute;
+            color: var(--app-symbol);
+            font-size: 3.5rem;
+            font-weight: 300;
+            animation: float 15s infinite ease-in-out;
+            pointer-events: none;
+            transition: color 0.4s ease;
+            user-select: none;
+        }
+        .math-symbol:nth-child(1) { top: 10%; left: 20%; animation-duration: 12s; }
+        .math-symbol:nth-child(2) { top: 30%; left: 70%; animation-duration: 15s; }
+        .math-symbol:nth-child(3) { top: 50%; left: 10%; animation-duration: 10s; }
+        .math-symbol:nth-child(4) { top: 70%; left: 85%; animation-duration: 18s; }
+        .math-symbol:nth-child(5) { top: 90%; left: 40%; animation-duration: 13s; }
+        .math-symbol:nth-child(6) { top: 25%; left: 50%; animation-duration: 16s; }
+        .math-symbol:nth-child(7) { top: 65%; left: 30%; animation-duration: 11s; }
+        .math-symbol:nth-child(8) { top: 80%; left: 60%; animation-duration: 14s; }
+        .math-symbol:nth-child(9) { top: 15%; left: 80%; animation-duration: 17s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-20px) rotate(15deg); opacity: 1; }
+            100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+        }
+
+        .app-screen-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-content {
+             animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .app-back-btn {
+            background: var(--app-header-bg);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: var(--app-header-icon);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .app-back-btn:active {
+            transform: scale(0.95);
+            background: rgba(0,0,0,0.1);
+        }
+        
+        /* --- Estilos de Páginas Internas --- */
+        .app-home-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* CAMBIO: Corregir centrado */
+            min-height: 100%;
+            box-sizing: border-box;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .logo-name-container {
+            order: 1;
+            margin-bottom: 30px;
+        }
+        
+        .app-home-buttons {
+            order: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .app-button {
+            width: 220px;
+            height: 60px;
+            background: linear-gradient(145deg, #e7f0ff, #c0d9ff);
+            border: 2px solid #007bff;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            text-decoration: none;
+            color: #004a99;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 5px 12px rgba(0,123,255,0.35);
+            transition: all 0.3s ease;
+        }
+
+        .app-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 18px rgba(0,123,255,0.6);
+        }
+        
+        .app-button:active {
+            transform: scale(0.98);
+        }
+
+        .app-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 25px;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+
+        .info-page {
+            padding: 20px;
+            text-align: justify;
+            font-size: 17px;
+            line-height: 1.7;
+            background: var(--card-internal-bg);
+            border-radius: 18px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            margin: 0 auto;
+            color: #003366;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .info-image {
+            width: 100%;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .gradient-text {
+            background-image: linear-gradient(45deg, #007bff, #00c6ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: background-image 0.4s ease;
+        }
+
+        .category-button {
+            margin: 10px 0;
+            padding: 15px 20px;
+            border-radius: 18px;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .category-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .category-button:active {
+            transform: translateY(-2px);
+        }
+        
+        /* --- NUEVO: Estilo para el consejo del día --- */
+        .tip-box {
+            background: var(--radio-bg);
+            border: 2px dashed var(--app-header-icon);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 24px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) inset;
+            transition: all 0.4s ease;
+        }
+        .tip-box strong {
+            color: var(--card-text);
+            font-weight: 700;
+        }
+        .tip-box-text {
+             color: var(--card-text);
+             opacity: 0.9;
+        }
+
+
+        .problem-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .problem-button {
+            background: linear-gradient(135deg, #c3e5ff, #99c9ff);
+            color: #004a99;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .problem-button:hover:not(.locked) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .problem-button:active:not(.locked) {
+            transform: scale(1.02);
+        }
+
+        .problem-button.solved {
+            background: linear-gradient(135deg, #d4edda, #c3e5d5);
+            color: #155724;
+            position: relative;
+        }
+
+        /* --- NUEVO: Estilo para problemas bloqueados --- */
+        .problem-button.locked {
+            background: linear-gradient(135deg, #e9ecef, #ced4da);
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .problem-button.solved i.fa-star {
+            animation: pulse-star 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-star {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .problem-page {
+            background: var(--card-internal-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.2);
+            transition: background 0.4s ease;
+        }
+
+        .problem-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            transition: background 0.4s ease, color 0.4s ease;
+            color: var(--card-text);
+        }
+        
+        .problem-card p, .problem-card h2 {
+             color: var(--card-text);
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0,123,255,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,123,255,0.6);
+        }
+        
+        .check-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* --- NUEVO: Estilos de Retroalimentación --- */
+        .feedback-message {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: color 0.4s ease;
+        }
+        .feedback-correct {
+            color: #155724; /* Verde */
+        }
+        .feedback-incorrect {
+            color: #721c24; /* Rojo */
+        }
+
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+          10%, 90% { transform: translateX(-1px); }
+          20%, 80% { transform: translateX(1px); }
+          30%, 50%, 70% { transform: translateX(-2px); }
+          40%, 60% { transform: translateX(2px); }
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            background: var(--radio-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid var(--radio-border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+        
+        .radio-visual {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #aaa;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .radio-visual::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-visual {
+            background: #007bff;
+            border-color: #007bff;
+        }
+        
+        .radio-option input[type="radio"]:checked + .radio-visual::after {
+            transform: scale(1);
+        }
+        
+        .radio-option:hover {
+            background: var(--radio-hover-bg);
+            border-color: var(--radio-hover-border);
+        }
+        
+        .radio-option.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .radio-option.incorrect {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+
+        /* --- SECCIÓN DE MODO OSCURO --- */
+
+        body.dark-mode {
+            --page-bg: linear-gradient(135deg, #1d2b4e, #121212);
+            --phone-bg: #1a1a1a;
+            --phone-border: #111;
+            --text-color: #fff;
+            --icon-bg: linear-gradient(135deg, #444, #222);
+            --home-bg: #1c1c1e;
+            --app-bg: linear-gradient(45deg, #2a3b5a, #1e2a4a, #1c263c);
+            --app-symbol: rgba(255, 255, 255, 0.08);
+            --app-header-bg: rgba(30, 30, 30, 0.7);
+            --app-header-icon: #b0c4de;
+            --card-bg: #2a3a5a;
+            --card-text: #e0eaff;
+            --card-internal-bg: rgba(20, 20, 30, 0.9);
+            --radio-bg: #2a3a5a;
+            --radio-border: #4a5a7a;
+            --radio-hover-bg: #3a4a6a;
+            --radio-hover-border: #5a6a8a;
+        }
+        
+        body.dark-mode .theme-toggle-btn {
+            background: #333;
+            color: #fff;
+        }
+
+        body.dark-mode .phone.app-is-open .status-bar {
+            background: #111;
+            color: #fff;
+        }
+        
+        body.dark-mode .app-icon img {
+            opacity: 0.9;
+        }
+
+        body.dark-mode .app-button {
+            background: linear-gradient(145deg, #4a5a7d, #303d5c);
+            border-color: #89b3ff;
+            color: #e0eaff;
+            box-shadow: 0 5px 12px rgba(137, 179, 255, 0.2);
+        }
+
+        body.dark-mode .info-page {
+            color: #c0d0e0;
+        }
+
+        body.dark-mode .gradient-text {
+            background-image: linear-gradient(45deg, #89b3ff, #c0d9ff);
+        }
+
+        /* CAMBIO: Eliminada regla .bg-blue-50 */
+
+        body.dark-mode .bg-white {
+            background-color: rgba(30, 40, 60, 0.9) !important;
+        }
+
+        body.dark-mode .problem-button {
+            background: linear-gradient(135deg, #4a5a7d, #303d5c);
+            color: #e0eaff;
+        }
+
+        body.dark-mode .problem-button.solved {
+            background: linear-gradient(135deg, #3a5a4a, #2a4a3a);
+            color: #c0f0d0;
+        }
+        
+        /* --- NUEVO: Estilo bloqueado en modo oscuro --- */
+        body.dark-mode .problem-button.locked {
+            background: linear-gradient(135deg, #495057, #343a40);
+            color: #adb5bd;
+        }
+
+        body.dark-mode .problem-card p, 
+        body.dark-mode .problem-card h2,
+        body.dark-mode .problem-card .text-gray-600 {
+            color: #e0eaff !important;
+        }
+
+        body.dark-mode .answer-input {
+            background: #1a2a4a;
+            border-color: #5a6a8a;
+            color: #fff;
+        }
+
+        body.dark-mode .answer-input:focus {
+            border-color: #89b3ff;
+        }
+        
+        /* --- NUEVO: Estilos de retroalimentación en modo oscuro --- */
+        body.dark-mode .feedback-correct {
+            color: #c3e6cb; /* Verde claro */
+        }
+        body.dark-mode .feedback-incorrect {
+            color: #f5c6cb; /* Rojo claro */
+        }
+        
+        body.dark-mode .radio-visual {
+            border-color: #888;
+        }
+        
+        body.dark-mode .radio-option input[type="radio"]:checked + .radio-visual {
+            background: #89b3ff;
+            border-color: #89b3ff;
+        }
+        
+        body.dark-mode .radio-option input[type="radio"]:checked + .radio-visual::after {
+            background: #1e2a4a;
+        }
+        
+        body.dark-mode .radio-option.correct {
+            background: #2a5a3a;
+            border-color: #3a6a4a;
+        }
+        
+        body.dark-mode .radio-option.incorrect {
+            background: #5a2a2a;
+            border-color: #6a3a3a;
+        }
+    </style>
 </head>
 <body>
-    <div class="phone">
-        <div class="status-bar">
-            <!-- Iconos de la barra de estado con colores -->
-            <div class="status-item"><i class="fas fa-signal"></i></div>
-            <div class="status-item"><i class="fas fa-wifi"></i></div>
-            <div class="status-item time">12:00</div>
-            <div class="status-item battery">
-                <i class="fas fa-battery-full"></i>
-                <div class="battery-text">100%</div>
+    <div class="external-controls">
+        <button id="theme-toggle" class="theme-toggle-btn">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="phone" id="phone-body">
+        <div class="notch"></div>
+        
+        <div class="status-bar" id="status-bar">
+            <div class="status-item time" id="current-time-left">12:00 PM</div>
+            
+            <div class="status-item time" id="current-time-center">12:00 PM</div>
+
+            <div class="status-right-icons">
+                <div class="status-item"><i class="fas fa-signal"></i></div>
+                <div class="status-item"><i class="fas fa-wifi"></i></div>
+                <div class="status-item battery">
+                    <i class="fas fa-battery-full"></i>
+                </div>
             </div>
         </div>
+        
         <div class="home-screen" id="home-screen">
-            <!-- Apps decorativas con colores aleatorios -->
-            <a href="#" class="app-icon" style="--app-color: #ff6347;">
-                <i class="fas fa-phone"></i>
+            <a href="#" class="app-icon" id="matepro-app">
+                <div class="app-icon-visual">
+                    <img id="matepro-app-icon" src="" alt="Logo App"> </div>
+                <span>MatePro</span>
+            </a>
+            <a href="#" class="app-icon">
+                <div class="app-icon-visual" style="--app-color: #ff6347;">
+                    <i class="fas fa-phone"></i>
+                </div>
                 <span>Teléfono</span>
             </a>
-            <a href="#" class="app-icon" style="--app-color: #3cb371;">
-                <i class="fas fa-camera"></i>
+            <a href="#" class="app-icon">
+                <div class="app-icon-visual" style="--app-color: #3cb371;">
+                    <i class="fas fa-camera"></i>
+                </div>
                 <span>Cámara</span>
             </a>
-            <a href="#" class="app-icon" style="--app-color: #4682b4;">
-                <i class="fas fa-message"></i>
+            <a href="#" class="app-icon">
+                <div class="app-icon-visual" style="--app-color: #4682b4;">
+                    <i class="fas fa-message"></i>
+                </div>
                 <span>Mensajes</span>
             </a>
-            <a href="#" class="app-icon" style="--app-color: #da70d6;">
-                <i class="fas fa-paint-brush"></i>
+            <a href="#" class="app-icon">
+                <div class="app-icon-visual" style="--app-color: #da70d6;">
+                    <i class="fas fa-paint-brush"></i>
+                </div>
                 <span>Arte</span>
             </a>
-            <div class="dock">
-                <!-- Apps en dock con MatePro destacada -->
-                <a href="#" class="app-icon special" id="matepro-app">
-                    <i class="fas fa-square-root-alt" style="color: #fff;"></i>
-                    <span>MatePro</span>
-                </a>
-            </div>
         </div>
-        <div class="buttons">
-            <div class="volume-btn"></div>
-            <div class="power-btn"></div>
-        </div>
-        <!-- Pantalla de MatePro con homescreen interactiva -->
+        
         <div class="app-screen" id="matepro-screen">
-            <div class="math-symbol">$$ \int $$</div>
-            <div class="math-symbol">$$ \sum $$</div>
-            <div class="math-symbol">$$ \div $$</div>
-            <div class="math-symbol">$$ \times $$</div>
-            <div class="math-symbol">$$ \pi $$</div>
-            <div class="math-symbol">$$ \phi $$</div>
-            <div class="math-symbol">$$ \infty $$</div>
-            <div class="math-symbol">$$ \partial $$</div>
-            <div class="math-symbol">$$ \alpha $$</div>
-            <div class="app-screen-content" id="app-content">
-                <!-- Contenido de la app se renderizará aquí -->
-            </div>
+            <div class="math-symbol">x</div>
+            <div class="math-symbol">+</div>
+            <div class="math-symbol">√</div>
+            <div class="math-symbol">π</div>
+            <div class="math-symbol">÷</div>
+            <div class="math-symbol">=</div>
+            <div class="math-symbol">α</div>
+            <div class="math-symbol">β</div>
+            <div class="math-symbol">Σ</div>
             
-            <div class="nav-bar">
-                <a href="#" class="nav-button" id="nav-home">
-                    <i class="fas fa-th-large"></i>
-                    <span>Apps</span>
-                </a>
-                <a href="#" class="nav-button" id="nav-info">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Info</span>
-                </a>
-                <a href="#" class="nav-button" id="nav-back">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Volver</span>
-                </a>
-            </div>
+            <div class="app-screen-content" id="app-content">
+                </div>
         </div>
     </div>
     
-    <script src="mathpro.js"></script>
     <script>
-        // Inicializar KaTeX
-        window.addEventListener('load', () => {
-            renderMathInElement(document.body, {
-                // Configuración de KaTeX
-                delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
-                ],
-                throwOnError: false
+        // --- Referencias a Elementos del DOM ---
+        const phoneBody = document.getElementById('phone-body');
+        const statusBar = document.getElementById('status-bar');
+        const mateproScreen = document.getElementById('matepro-screen');
+        const homeScreen = document.getElementById('home-screen');
+        const appContent = document.getElementById('app-content');
+        const mateproAppIcon = document.getElementById('matepro-app');
+
+        // --- Estado de la App ---
+        let historyStack = [];
+        
+        let userProgress = {
+            problems: new Set(),
+            lessons: new Set(),
+            quizzes: new Set(),
+            graficos: new Set()
+        };
+        
+        const LOGO_URL = 'https://i.pinimg.com/736x/57/54/88/5754883f04ac795185e2efb23877ab81.jpg';
+
+        // --- Bases de Datos (Contenido) ---
+        const PROBLEMS = [
+            { id: 1, question: "¿Cuánto es $5 \\times 8$?", answer: "40", details: "Problema básico de multiplicación." },
+            { id: 2, question: "Si un panadero hace 12 pasteles por hora y trabaja 4 horas, ¿cuántos pasteles hizo?", answer: "48", details: "Multiplica pasteles por hora ($12$) por horas ($4$)." },
+            { id: 3, question: "¿Área de un cuadrado con lado de 7 cm?", answer: "49", details: "El área es lado $\\times$ lado ($7 \\times 7$)." },
+            { id: 4, question: "20% de descuento en una camisa de 50. ¿Precio final?", answer: "40", details: "20% de 50 es 10. $50 - 10 = 40$." },
+            { id: 5, question: "¿Raíz cuadrada de 144?", answer: "12", details: "$12 \\times 12 = 144$." }
+        ];
+
+        const LESSONS = [
+            { id: 1, title: "Lección 1: Números Primos", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", details: "Aprende a identificar números primos." },
+            { id: 2, title: "Lección 2: Fracciones", videoUrl: "https://www.w3schools.com/html/movie.mp4", details: "Descubre cómo sumar, restar, multiplicar y dividir fracciones." },
+            { id: 3, title: "Lección 3: Álgebra Básica", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", details: "Conceptos básicos del álgebra." }
+        ];
+
+        const QUIZZES = [
+            { id: 1, question: "¿Cuál de estos es un número primo?", options: [{ text: "4" }, { text: "9" }, { text: "7" }, { text: "15" }], answer: "7", details: "Un número primo solo es divisible por 1 y por sí mismo. 7 cumple esta regla." },
+            { id: 2, question: "¿Qué fracción es equivalente a $1/2$?", options: [{ text: "2/3" }, { text: "3/6" }, { text: "2/5" }], answer: "3/6", details: "Si divides 3 entre 6, obtienes 0.5, que es lo mismo que 1 dividido entre 2." },
+            { id: 3, question: "Si $x + 5 = 10$, ¿cuál es el valor de $x$?", options: [{ text: "10" }, { text: "15" }, { text: "5" }], answer: "5", details: "Para encontrar $x$, restas 5 de ambos lados: $10 - 5 = 5$." },
+            { id: 4, question: "¿Cuántos lados tiene un hexágono?", options: [{ text: "5" }, { text: "6" }, { text: "8" }, { text: "4" }], answer: "6", details: "Un hexágono es una figura geométrica con seis lados." },
+            { id: 5, question: "¿Resultado de $3^2$ (3 al cuadrado)?", options: [{ text: "6" }, { text: "3" }, { text: "9" }], answer: "9", details: "3 al cuadrado significa $3 \\times 3$, lo que es igual a 9." }
+        ];
+        
+        const GRAFICOS = [
+            { id: 1, question: "¿Cuántas barras azules hay?", image: "https://i.imgur.com/8Fk4gYq.png", options: [{ text: "3" }, { text: "4" }, { text: "5" }], answer: "5", details: "El gráfico de barras muestra 5 barras azules." },
+            { id: 2, question: "¿Porción más grande del pastel?", image: "https://i.imgur.com/1bX3u3D.png", options: [{ text: "Manzanas (40%)" }, { text: "Naranjas (30%)" }, { text: "Uvas (20%)" }], answer: "Manzanas (40%)", details: "40% es el porcentaje más grande." },
+            { id: 3, question: "¿Valor de 'y' si 'x' es 3?", image: "https://i.imgur.com/3cI8Q1m.png", options: [{ text: "4" }, { text: "5" }, { text: "6" }], answer: "6", details: "La línea sigue la ecuación $y = 2x$." },
+            { id: 4, question: "¿Qué cuadrilátero es?", image: "https://i.imgur.com/j1J2qfL.png", options: [{ text: "Trapecio" }, { text: "Rectángulo" }, { text: "Romboide" }], answer: "Romboide", details: "Un romboide es un paralelogramo con lados y ángulos opuestos iguales." },
+            { id: 5, question: "¿En qué cuadrante está (-3, 5)?", image: "https://i.imgur.com/M2M7kE4.png", options: [{ text: "Cuadrante I" }, { text: "Cuadrante II" }, { text: "Cuadrante III" }], answer: "Cuadrante II", details: " 'x' negativo, 'y' positivo es el Cuadrante II." }
+        ];
+
+        // --- Funciones de Navegación ---
+        
+        function closeApp() {
+            phoneBody.classList.remove('app-is-open');
+            homeScreen.style.display = 'grid';
+            mateproScreen.style.display = 'none';
+            historyStack = [];
+        }
+
+        function goBack() {
+            if (historyStack.length > 0) {
+                const lastPageFn = historyStack.pop();
+                lastPageFn();
+            } else {
+                closeApp();
+            }
+        }
+        
+        function getBackButtonHTML() {
+            return `<button class="app-back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Regresar</button>`;
+        }
+        
+        // --- NUEVA FUNCIÓN: Mensaje de bloqueo ---
+        function showLockedMessage() {
+            const feedback = document.createElement('div');
+            feedback.style = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #333; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; font-weight: 500;";
+            feedback.textContent = "Debes completar el nivel anterior primero.";
+            
+            if (document.body.classList.contains('dark-mode')) {
+                feedback.style.background = "#333";
+                feedback.style.color = "#fff";
+            }
+            
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 2000);
+        }
+
+
+        // --- Funciones de Renderizado de Páginas ---
+
+        function rerunKaTeX() {
+            if (window.renderMathInElement) {
+                renderMathInElement(appContent, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            } else {
+                setTimeout(rerunKaTeX, 50);
+            }
+        }
+
+        function renderHomePage() {
+            appContent.innerHTML = `
+                <div class="page-content app-home-content">
+                    ${getBackButtonHTML()}
+                    
+                    <div class="logo-name-container">
+                        <img src="${LOGO_URL}" alt="MatePro Logo" class="app-logo" id="in-app-logo" />
+                        <h1 class="text-5xl font-extrabold text-white mb-8 drop-shadow-lg" style="font-size: 3rem; color: var(--app-header-icon); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">MatePro</h1>
+                    </div>
+                    
+                    <div class="app-home-buttons">
+                        <a href="#" class="app-button" id="learn-btn">
+                            <i class="fas fa-play-circle"></i>
+                            Empezar a aprender
+                        </a>
+                        <a href="#" class="app-button" id="info-btn">
+                            <i class="fas fa-info-circle"></i>
+                            Información
+                        </a>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        function renderInfoPage() {
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="info-page p-6 rounded-3xl">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text">Acerca de MatePro</h2>
+                        <img src="https://placehold.co/600x400/007bff/ffffff?text=Evolución+del+Aprendizaje" alt="Evolución del Aprendizaje" class="info-image">
+                        <p class="mb-4">
+                            MatePro es una herramienta diseñada para democratizar el aprendizaje de las matemáticas. Nuestra meta es transformar la percepción de que las matemáticas son un tema árido y difícil.
+                        </p>
+                        <h3 class="text-xl font-bold mt-6 mb-2 gradient-text">Nuestra Metodología</h3>
+                        <p class="mb-4">
+                            Utilizamos una metodología de aprendizaje gamificada, donde cada concepto se presenta como un desafío a superar.
+                        </p>
+                        <img src="https://placehold.co/600x400/ffa500/ffffff?text=Aprendizaje+Divertido" alt="Aprendizaje Divertido" class="info-image">
+                        <h3 class="text-xl font-bold mt-6 mb-2 gradient-text">Visión de Futuro</h3>
+                        <p class="mb-4">
+                            Soñamos con un mundo donde el miedo a los números sea cosa del pasado.
+                        </p>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- CAMBIO: Función renderCategoryPage actualizada ---
+        function renderCategoryPage() {
+            const tips = [
+                "¡Practica todos los días!",
+                "No temas equivocarte, cada error es un paso.",
+                "Divide los problemas grandes en partes pequeñas.",
+            ];
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="p-4 bg-white bg-opacity-90 rounded-3xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Categorías</h2>
+                        <ul class="list-none p-0 m-0">
+                            <li class="category-button" id="problems-btn" style="background: linear-gradient(135deg, #FFD700, #FFA500);">
+                                <i class="fas fa-pencil-alt text-xl"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-bold">Problemas</span>
+                                    <span class="text-sm font-light">Ejercicios para aplicar conceptos.</span>
+                                </div>
+                            </li>
+                            <li class="category-button" id="lessons-btn" style="background: linear-gradient(135deg, #007bff, #00c6ff);">
+                                <i class="fas fa-book-open text-xl"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-bold">Lecciones</span>
+                                    <span class="text-sm font-light">Explicaciones detalladas y ejemplos.</span>
+                                </div>
+                            </li>
+                            <li class="category-button" id="quizzes-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                                <i class="fas fa-question-circle text-xl"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-bold">Quizzes</span>
+                                    <span class="text-sm font-light">Pruebas rápidas para evaluar.</span>
+                                </div>
+                            </li>
+                            <li class="category-button" id="graficos-btn" style="background: linear-gradient(135deg, #6f42c1, #a855f7);">
+                                <i class="fas fa-chart-bar text-xl"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-bold">Gráficos</span>
+                                    <span class="text-sm font-light">Interpreta datos visuales.</span>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="tip-box">
+                            <strong class="font-bold">Consejo del día:</strong> <span class="tip-box-text">${randomTip}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- CAMBIO: Función renderProblemSelectionPage actualizada con lógica de bloqueo ---
+        function renderProblemSelectionPage() {
+            let problemListHTML = PROBLEMS.map((problem) => {
+                const isSolved = userProgress.problems.has(problem.id);
+                
+                // --- NUEVA LÓGICA DE BLOQUEO ---
+                const isLocked = (problem.id > 1 && !userProgress.problems.has(problem.id - 1));
+                // --- FIN LÓGICA DE BLOQUEO ---
+
+                let statusClass = '';
+                let icon = '';
+                let action = '';
+                let statusText = '';
+
+                if (isLocked) {
+                    statusClass = 'locked';
+                    icon = '<i class="fas fa-lock text-sm"></i>';
+                    action = `onclick="showLockedMessage()"`; // Llama a la nueva función
+                    statusText = 'Bloqueado';
+                } else if (isSolved) {
+                    statusClass = 'solved';
+                    icon = '<i class="fas fa-star text-sm"></i>';
+                    action = `onclick="renderProblemPage(${problem.id})"`;
+                    statusText = 'Completado';
+                } else {
+                    // Disponible pero no resuelto
+                    statusClass = '';
+                    icon = '<i class="fas fa-pencil-alt text-sm"></i>';
+                    action = `onclick="renderProblemPage(${problem.id})"`;
+                    statusText = 'Disponible';
+                }
+
+                return `
+                    <li class="problem-button ${statusClass}" ${action}>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">Problema ${problem.id}</span>
+                            ${icon}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 300; text-align: right; width: 100%;">${statusText}</div>
+                    </li>
+                `;
+            }).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="p-4 bg-white bg-opacity-90 rounded-3xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Selecciona un Nivel</h2>
+                        <ul class="list-none p-0 m-0 problem-list">
+                            ${problemListHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- CAMBIO: Función renderProblemPage actualizada con mejor retroalimentación ---
+        function renderProblemPage(id) {
+            const problem = PROBLEMS.find(p => p.id === id);
+            if (!problem) return;
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="problem-page p-6 rounded-3xl">
+                        <h2 class="text-3xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Problema ${problem.id}</h2>
+                        <div class="problem-card">
+                            <p class="text-xl font-semibold text-center mb-6" style="font-size: 1.25rem; margin-bottom: 1.5rem;">${problem.question}</p>
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <input type="text" id="answer-input" placeholder="Tu respuesta" class="answer-input" />
+                                <button id="check-answer-btn" class="check-btn" style="margin-top: 1rem;">Comprobar</button>
+                                <div id="feedback-message" class="feedback-message"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; font-weight: 300; color: #555;" class="text-gray-600">
+                            <p>${problem.details}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('check-answer-btn').addEventListener('click', () => {
+                const input = document.getElementById('answer-input').value;
+                const feedback = document.getElementById('feedback-message');
+                if (input.trim() === problem.answer) {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Correcto!';
+                    feedback.className = 'feedback-message feedback-correct';
+                    userProgress.problems.add(problem.id);
+                    setTimeout(goBack, 1000);
+                } else {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Incorrecto! Intenta de nuevo.';
+                    feedback.className = 'feedback-message feedback-incorrect';
+                    feedback.classList.add('animate-shake');
+                    setTimeout(() => feedback.classList.remove('animate-shake'), 500);
+                }
             });
+
+            addListeners();
+            rerunKaTeX();
+        }
+
+        function renderLessonSelectionPage() {
+            let lessonListHTML = LESSONS.map((lesson) => {
+                const isWatched = userProgress.lessons.has(lesson.id);
+                const statusClass = isWatched ? 'solved' : '';
+                const icon = isWatched ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-play-circle"></i>';
+                const action = `onclick="renderLessonPage(${lesson.id})"`;
+                const actionText = isWatched ? 'Visto' : 'Ver';
+
+                return `
+                    <li class="problem-button ${statusClass}" ${action}>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">${lesson.title}</span>
+                            ${icon}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 300; text-align: right; width: 100%;">${actionText}</div>
+                    </li>
+                `;
+            }).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="p-4 bg-white bg-opacity-90 rounded-3xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Selecciona una Lección</h2>
+                        <ul class="list-none p-0 m-0 problem-list">
+                            ${lessonListHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        function renderLessonPage(id) {
+            const lesson = LESSONS.find(l => l.id === id);
+            if (!lesson) return;
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="problem-page p-6 rounded-3xl">
+                        <h2 class="text-3xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">${lesson.title}</h2>
+                        <div class="video-container" style="border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                            <video id="lesson-video" controls width="100%">
+                                <source src="${lesson.videoUrl}" type="video/mp4">
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+                        </div>
+                        <p class="text-sm text-center mt-4 mb-6 text-gray-600" style="font-size: 0.9rem; margin-top: 1rem; margin-bottom: 1.5rem;">${lesson.details}</p>
+                        <button id="mark-as-watched-btn" class="check-btn w-full mt-4" style="width: 100%; margin-top: 1rem;">Marcar como Visto</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('mark-as-watched-btn').addEventListener('click', () => {
+                userProgress.lessons.add(lesson.id);
+                goBack();
+            });
+
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- FUNCIONES DE QUIZ ---
+        function renderQuizSelectionPage() {
+             let quizListHTML = QUIZZES.map((quiz) => {
+                const isSolved = userProgress.quizzes.has(quiz.id);
+                const statusClass = isSolved ? 'solved' : '';
+                const icon = isSolved ? '<i class="fas fa-star text-sm"></i>' : `<i class="fas fa-question-circle text-sm"></i>`;
+                const action = `onclick="renderQuizPage(${quiz.id})"`;
+
+                return `
+                    <li class="problem-button ${statusClass}" ${action}>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">Quiz ${quiz.id}</span>
+                            ${icon}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 300; text-align: right; width: 100%;">${isSolved ? 'Completado' : 'Disponible'}</div>
+                    </li>
+                `;
+            }).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="p-4 bg-white bg-opacity-90 rounded-3xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Selecciona un Quiz</h2>
+                        <ul class="list-none p-0 m-0 problem-list">
+                            ${quizListHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+        
+        // --- CAMBIO: Función renderQuizPage actualizada con mejor retroalimentación ---
+        function renderQuizPage(id) {
+            const quiz = QUIZZES.find(q => q.id === id);
+            if (!quiz) return;
+
+            let optionsHTML = quiz.options.map((option, index) => `
+                <label class="radio-option">
+                    <input type="radio" name="quiz-answer" value="${option.text}">
+                    <span class="radio-visual"></span>
+                    <span class="radio-text">${option.text}</span>
+                </label>
+            `).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="problem-page p-6 rounded-3xl">
+                        <h2 class="text-3xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Quiz ${quiz.id}</h2>
+                        <div class="problem-card">
+                            <p class="text-xl font-semibold text-center mb-6" style="font-size: 1.25rem; margin-bottom: 1.5rem;">${quiz.question}</p>
+                            <div class="options-container" style="margin-top: 1rem;">
+                                ${optionsHTML}
+                            </div>
+                            <button id="check-quiz-btn" class="check-btn" style="margin-top: 1rem; width: 100%;">Comprobar</button>
+                            <div id="feedback-message" class="feedback-message"></div>
+                        </div>
+                        <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; font-weight: 300; color: #555;" class="text-gray-600">
+                            <p>${quiz.details}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('check-quiz-btn').addEventListener('click', () => {
+                const selected = document.querySelector('input[name="quiz-answer"]:checked');
+                const feedback = document.getElementById('feedback-message');
+                
+                if (!selected) {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = 'Por favor, selecciona una opción.';
+                    feedback.className = 'feedback-message feedback-incorrect';
+                    return;
+                }
+
+                const answer = selected.value;
+                document.querySelectorAll('input[name="quiz-answer"]').forEach(radio => radio.disabled = true);
+                
+                if (answer === quiz.answer) {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Correcto!';
+                    feedback.className = 'feedback-message feedback-correct';
+                    userProgress.quizzes.add(quiz.id);
+                    selected.parentElement.classList.add('correct');
+                    setTimeout(goBack, 1000);
+                } else {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Incorrecto!';
+                    feedback.className = 'feedback-message feedback-incorrect';
+                    selected.parentElement.classList.add('incorrect');
+                    document.querySelectorAll('.radio-option').forEach(label => {
+                        if (label.querySelector('input').value === quiz.answer) {
+                            label.classList.add('correct');
+                        }
+                    });
+                }
+            });
+
+            addListeners();
+            rerunKaTeX();
+        }
+        
+        // --- FIN DE FUNCIONES DE QUIZ ---
+        
+        // --- FUNCIONES DE GRÁFICOS ---
+        function renderGraficoSelectionPage() {
+            let graficosListHTML = GRAFICOS.map((grafico) => {
+                const isSolved = userProgress.graficos.has(grafico.id);
+                const statusClass = isSolved ? 'solved' : '';
+                const icon = isSolved ? '<i class="fas fa-star text-sm"></i>' : `<i class="fas fa-chart-bar text-sm"></i>`;
+                const action = `onclick="renderGraficoPage(${grafico.id})"`;
+
+                return `
+                    <li class="problem-button ${statusClass}" ${action}>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">Gráfico ${grafico.id}</span>
+                            ${icon}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 300; text-align: right; width: 100%;">${isSolved ? 'Completado' : 'Disponible'}</div>
+                    </li>
+                `;
+            }).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="p-4 bg-white bg-opacity-90 rounded-3xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Selecciona un Gráfico</h2>
+                        <ul class="list-none p-0 m-0 problem-list">
+                            ${graficosListHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- CAMBIO: Función renderGraficoPage actualizada con mejor retroalimentación ---
+        function renderGraficoPage(id) {
+            const grafico = GRAFICOS.find(g => g.id === id);
+            if (!grafico) return;
+
+            let optionsHTML = grafico.options.map((option, index) => `
+                <label class="radio-option">
+                    <input type="radio" name="grafico-answer" value="${option.text}">
+                    <span class="radio-visual"></span>
+                    <span class="radio-text">${option.text}</span>
+                </label>
+            `).join('');
+
+            appContent.innerHTML = `
+                <div class="page-content">
+                    ${getBackButtonHTML()}
+                    <div class="problem-page p-6 rounded-3xl">
+                        <h2 class="text-3xl font-bold text-center mb-4 gradient-text" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Problema de Gráfico</h2>
+                        <div class="problem-card">
+                            <p class="text-xl font-semibold text-center mb-6" style="font-size: 1.25rem; margin-bottom: 1.5rem;">${grafico.question}</p>
+                            <img src="${grafico.image}" alt="Gráfico del problema" class="info-image">
+                            <div class="options-container" style="margin-top: 1rem;">
+                                ${optionsHTML}
+                            </div>
+                            <button id="check-grafico-btn" class="check-btn" style="margin-top: 1rem; width: 100%;">Comprobar</button>
+                            <div id="feedback-message" class="feedback-message"></div>
+                        </div>
+                        <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; font-weight: 300; color: #555;" class="text-gray-600">
+                            <p>${grafico.details}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('check-grafico-btn').addEventListener('click', () => {
+                const selected = document.querySelector('input[name="grafico-answer"]:checked');
+                const feedback = document.getElementById('feedback-message');
+                
+                if (!selected) {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = 'Por favor, selecciona una opción.';
+                    feedback.className = 'feedback-message feedback-incorrect';
+                    return;
+                }
+
+                const answer = selected.value;
+                document.querySelectorAll('input[name="grafico-answer"]').forEach(radio => radio.disabled = true);
+                
+                if (answer === grafico.answer) {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Correcto!';
+                    feedback.className = 'feedback-message feedback-correct';
+                    userProgress.graficos.add(grafico.id);
+                    selected.parentElement.classList.add('correct');
+                    setTimeout(goBack, 1000);
+                } else {
+                    // CAMBIO: Usa clases CSS
+                    feedback.innerHTML = '¡Incorrecto!';
+                    feedback.className = 'feedback-message feedback-incorrect';
+                    selected.parentElement.classList.add('incorrect');
+                    document.querySelectorAll('.radio-option').forEach(label => {
+                        if (label.querySelector('input').value === grafico.answer) {
+                            label.classList.add('correct');
+                        }
+                    });
+                }
+            });
+
+            addListeners();
+            rerunKaTeX();
+        }
+
+        // --- Manejadores de Eventos (Listeners) ---
+
+        function addListeners() {
+            const infoBtn = document.getElementById('info-btn');
+            if (infoBtn) {
+                infoBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderHomePage);
+                    renderInfoPage();
+                };
+            }
+
+            const learnBtn = document.getElementById('learn-btn');
+            if (learnBtn) {
+                learnBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderHomePage);
+                    renderCategoryPage();
+                };
+            }
+            
+            const problemsBtn = document.getElementById('problems-btn');
+            if (problemsBtn) {
+                problemsBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderCategoryPage);
+                    renderProblemSelectionPage();
+                };
+            }
+
+            const lessonsBtn = document.getElementById('lessons-btn');
+            if (lessonsBtn) {
+                lessonsBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderCategoryPage);
+                    renderLessonSelectionPage();
+                };
+            }
+
+            const quizzesBtn = document.getElementById('quizzes-btn');
+            if (quizzesBtn) {
+                quizzesBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderCategoryPage);
+                    renderQuizSelectionPage();
+                };
+            }
+            
+            const graficosBtn = document.getElementById('graficos-btn');
+            if(graficosBtn) {
+                graficosBtn.onclick = (e) => {
+                    e.preventDefault();
+                    historyStack.push(renderCategoryPage);
+                    renderGraficoSelectionPage();
+                };
+            }
+        }
+
+        // --- Navegación Principal ---
+
+        mateproAppIcon.addEventListener('click', (e) => {
+            e.preventDefault();
+            phoneBody.classList.add('app-is-open');
+            homeScreen.style.display = 'none';
+            mateproScreen.style.display = 'block';
+            historyStack = [];
+            renderHomePage();
+        });
+        
+        document.querySelectorAll('.app-icon:not(#matepro-app)').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLockedMessage(); // Reutilizamos el mensaje de bloqueo
+            });
+        });
+
+        // --- Funciones de Inicialización (window.onload) ---
+
+        // CAMBIO: `window.onload` actualizado
+        window.onload = () => {
+            document.getElementById('matepro-app-icon').src = LOGO_URL;
+            
+            // --- CAMBIO: Función de tiempo actualizada ---
+            function updateTime() {
+                // Obtenemos ambas referencias
+                const timeLeft = document.getElementById('current-time-left');
+                const timeCenter = document.getElementById('current-time-center');
+                
+                if (timeLeft && timeCenter) {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const timeString = `${hours}:${minutes} ${ampm}`;
+                    
+                    // Actualizamos ambos elementos
+                    timeLeft.textContent = timeString;
+                    timeCenter.textContent = timeString;
+                }
+            }
+            updateTime();
+            setInterval(updateTime, 30000);
+        };
+
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = themeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            
+            if(mateproScreen.style.display === 'block') {
+                // Volver a renderizar la página actual para actualizar los colores
+                // (Usamos el último elemento del stack o la home page)
+                const currentPageFn = historyStack.length > 0 ? historyStack[historyStack.length - 1] : renderHomePage;
+                currentPageFn();
+            }
+        });
+
+        // Inicializar KaTeX
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(rerunKaTeX, 100);
         });
     </script>
 </body>
